@@ -1,0 +1,7 @@
+
+path: G:\brain-tumor\datasets\brain-tumor
+train: G:\brain-tumor\datasets\brain-tumor\train
+val: G:\brain-tumor\datasets\brain-tumor\vaid
+
+nc: 2
+names: ["no-tumor", "tumor"]

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <title>Kết quả dự đoán u não</title>
+    <style>
+        body { text-align: center; font-family: Arial, sans-serif; background: #f0f2f5; padding: 30px; }
+        img { max-width: 80vw; border: 2px solid #007bff; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+        .notes { margin-top: 15px; font-weight: bold; color: #333; font-size: 18px; }
+        a.button {
+            display: inline-block; margin-top: 30px; padding: 12px 24px;
+            background-color: #007bff; color: white; border-radius: 5px; text-decoration: none; font-size: 16px;
+        }
+        a.button:hover { background-color: #0056b3; }
+    </style>
+</head>
+<body>
+    <h1>Kết quả dự đoán u não</h1>
+    <img src="{{ url_for('send_uploaded_file', filename=result_img) }}" alt="Ảnh dự đoán">
+    <div class="notes">{{ notes }}</div>
+    <a href="{{ url_for('index') }}" class="button">Quay lại trang upload</a>
+</body>
+</html>

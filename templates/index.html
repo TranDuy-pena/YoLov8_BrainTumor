@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phát hiện U não bằng YOLO</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #ece9e6, #ffffff);
+      margin: 0;
+      padding: 0;
+      color: #333;
+    }
+    header {
+      background: linear-gradient(90deg, #3f51b5, #5a55ae);
+      padding: 20px;
+      text-align: center;
+      color: white;
+      font-size: 1.8rem;
+      font-weight: bold;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    main {
+      max-width: 1000px;
+      margin: 40px auto;
+      background: #fff;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 25px;
+      color: #3f51b5;
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+    input[type="file"] {
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      cursor: pointer;
+      background: #f9f9f9;
+      transition: 0.3s;
+    }
+    input[type="file"]:hover {
+      border-color: #3f51b5;
+    }
+    button {
+      background: linear-gradient(90deg, #3f51b5, #5a55ae);
+      color: white;
+      padding: 12px 30px;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover {
+      background: linear-gradient(90deg, #5a55ae, #3f51b5);
+    }
+    .result-container {
+      margin-top: 35px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 30px;
+    }
+    .image-box {
+      flex: 1 1 300px;
+      max-width: 400px;
+      text-align: center;
+    }
+    .image-box img {
+      width: 100%;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+      object-fit: contain;
+      background: #fafafa;
+      padding: 5px;
+    }
+    .caption {
+      margin-top: 12px;
+      font-weight: 600;
+      color: #555;
+    }
+    #prediction-text {
+      margin-top: 12px;
+      font-weight: bold;
+      font-size: 1rem;
+    }
+    footer {
+      text-align: center;
+      padding: 15px;
+      font-size: 0.9rem;
+      color: #777;
+      margin-top: 40px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    🔍 Hệ thống Phát hiện U não bằng YOLO
+  </header>
+
+  <main>
+    <h2>Upload ảnh MRI để phân tích</h2>
+    <form id="upload-form" method="POST" enctype="multipart/form-data">
+      <input type="file" name="image" id="image-input" accept="image/*" required>
+      <button type="submit">🚀 Dự đoán</button>
+    </form>
+
+    <div class="result-container" id="result" style="display:none;">
+      <div class="image-box">
+        <div class="caption">Ảnh gốc</div>
+        <img id="original-img" src="#" alt="Ảnh gốc">
+      </div>
+      <div class="image-box">
+        <div class="caption">Ảnh dự đoán</div>
+        <img id="predicted-img" src="#" alt="Ảnh dự đoán">
+        <div id="prediction-text"></div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    &copy; 2025 - Dự án YOLO U não | Thiết kế bởi Bạn
+  </footer>
+
+  <script>
+    const form = document.getElementById('upload-form');
+    const originalImg = document.getElementById('original-img');
+    const predictedImg = document.getElementById('predicted-img');
+    const resultDiv = document.getElementById('result');
+    const predictionText = document.getElementById('prediction-text');
+    const imageInput = document.getElementById('image-input');
+
+    // Hiển thị ảnh gốc khi chọn file
+    imageInput.addEventListener('change', (e) => {
+      if (e.target.files && e.target.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(ev) {
+          originalImg.src = ev.target.result;
+          resultDiv.style.display = 'none';
+        }
+        reader.readAsDataURL(e.target.files[0]);
+      }
+    });
+
+    // Submit form
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!imageInput.files[0]) return alert('Vui lòng chọn ảnh!');
+
+      const formData = new FormData();
+      formData.append('image', imageInput.files[0]);
+
+      try {
+        const response = await fetch('/predict', {
+          method: 'POST',
+          body: formData
+        });
+        if (!response.ok) throw new Error('Lỗi khi dự đoán');
+        const data = await response.json();
+        
+        predictedImg.src = 'data:image/jpeg;base64,' + data.predicted_image_base64;
+
+        // Hiển thị mô tả kết quả
+        if (data.detected && data.detected > 0) {
+          predictionText.style.color = 'red';
+          predictionText.textContent = `⚠️ Phát hiện ${data.detected} vùng nghi ngờ u não!`;
+        } else {
+          predictionText.style.color = 'green';
+          predictionText.textContent = '✅ Không phát hiện u não.';
+        }
+
+        resultDiv.style.display = 'flex';
+      } catch (error) {
+        alert(error.message);
+      }
+    });
+  </script>
+</body>
+</html>
